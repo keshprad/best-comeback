@@ -15,10 +15,10 @@ pip3 install -r requirements.txt
 
 ## Examples
 
+#### More example [inputs](input/) and [outputs](output/).
+
 | Input                    | Output                    |
 | ------------------------ | ------------------------- |
 | ![Shaq_in](input/1.jpeg) | ![Shaq_out](output/1.gif) |
 | ![AG_in](input/8.jpg)    | ![AG_out](output/8.gif)   |
 | ![B99_in](input/10.jpeg) | ![B99_out](output/10.gif) |
-
-#### More example [inputs](input/) and [outputs](output/).
