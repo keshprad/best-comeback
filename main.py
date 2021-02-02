@@ -1,7 +1,6 @@
 import os
 import dlib
 from PIL import Image
-import argparse
 from imutils import face_utils
 import numpy as np
 import moviepy.editor as mpy
@@ -24,26 +23,34 @@ def deal_with_it(img_path, name):
     faces = calculate_prop_positions(rects, grayscale, sunglasses)
     text = resize_text(img, text)
 
+    # Create final_img to avoid creating it multiple times in make_frame method
+    final_img = img.convert('RGBA')
+    text_pos = (final_img.width // 2 - text.width // 2, final_img.height - text.height)
+    final_img.paste(text, text_pos, text)
+    for face in faces:
+        final_img.paste(face['sunglasses'], face['sunglasses_pos'], face['sunglasses'])
+
+
     def make_frame(t):
         out_img = img.convert('RGBA')
 
         if t == 0:  # no glasses
             return np.asarray(out_img)
 
-        for face in faces:
-            if t <= duration - text_duration:  # last secs for text
+        if t <= duration - text_duration:  # last secs for text
+            for face in faces:
                 curr_x = face['sunglasses_pos'][0]  # x is constant
                 curr_y = int(face['sunglasses_pos'][1] * t / (duration - text_duration))  # y moves from top -> down
                 out_img.paste(face['sunglasses'], (curr_x, curr_y), face['sunglasses'])
-            else:  # draw the text
-                out_img.paste(face['sunglasses'], face['sunglasses_pos'], face['sunglasses'])
-                text_pos = (out_img.width // 2 - text.width // 2, out_img.height - text.height)
-                out_img.paste(text, text_pos, text)
-        return np.asarray(out_img)
+            return np.asarray(out_img)
+        else:
+            # If I create the image here, I create the same image (text_duration * fps) times
+            # So instead, I can create the final_img before this method to only create the image only once
+            return np.asarray(final_img)
 
-    duration, text_duration = 5, 2
+    duration, text_duration = 4, 2
     animation = mpy.VideoClip(make_frame, duration=duration)
-    animation.write_gif("output/{}.gif".format(name), fps=4)
+    animation.write_gif("output/{}.gif".format(name), fps=16)
 
 
 def open_assets(img_path):
@@ -56,7 +63,7 @@ def open_assets(img_path):
     return img, sunglasses, cig, text
 
 
-def resize(img, max_width=750):
+def resize(img, max_width=1200):
     """
     Resize image if too big
     """
@@ -109,9 +116,10 @@ def calculate_prop_positions(rects, grayscale, sunglasses):
 
         # Line up props with image and add to array
         face['sunglasses'] = curr_sunglasses
-        leftEye_x = int(leftEye[0, 0] - sunglasses_width // 4)
-        leftEye_y = int(leftEye[0, 1] - sunglasses_width // 6)
-        face['sunglasses_pos'] = (leftEye_x, leftEye_y)
+        glasses_center = np.array([leftEyeCenter, rightEyeCenter]).mean(axis=0).astype('int')
+        sunglasses_x = int(glasses_center[0] - curr_sunglasses.width // 2)
+        sunglasses_y = int(glasses_center[1] - curr_sunglasses.height // 2)
+        face['sunglasses_pos'] = (sunglasses_x, sunglasses_y)
         faces.append(face)
     return faces
 
@@ -135,4 +143,4 @@ if __name__ == "__main__":
             if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
                 name = file_path[6:].split('.')[0]
                 deal_with_it(file_path, name)
-                print("\n")     # new line in between images
+                print("\n")  # new line in between images
