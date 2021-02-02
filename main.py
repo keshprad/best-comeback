@@ -1,3 +1,4 @@
+import os
 import dlib
 from PIL import Image
 import argparse
@@ -6,14 +7,20 @@ import numpy as np
 import moviepy.editor as mpy
 
 
-def deal_with_it():
-    img, sunglasses, cig, text = open_assets()
+def deal_with_it(img_path, name):
+    print(img_path[6:])
+    img, sunglasses, cig, text = open_assets(img_path)
     resize(img)
 
     # Convert to grayscale and represent as numpy array
     grayscale = np.array(img.convert('L'))
 
     rects = find_faces(img, grayscale)
+    if len(rects) == 0:
+        print("No faces found. Goodbye!")
+        return
+    print("{} faces found. Processing...".format(len(rects)))
+
     faces = calculate_prop_positions(rects, grayscale, sunglasses)
     text = resize_text(img, text)
 
@@ -36,17 +43,12 @@ def deal_with_it():
 
     duration, text_duration = 5, 2
     animation = mpy.VideoClip(make_frame, duration=duration)
-    animation.write_gif("DealWithIt.gif", fps=4)
+    animation.write_gif("output/{}.gif".format(name), fps=4)
 
 
-def open_assets():
-    # Make a arg parser to get image path
-    terminal_parser = argparse.ArgumentParser(description="Receive input image")
-    terminal_parser.add_argument("-i", required=True, help="input path")
-    path = terminal_parser.parse_args().i
-
+def open_assets(img_path):
     # Open the base image
-    img = Image.open(path)
+    img = Image.open(img_path)
     # Open assets
     sunglasses = Image.open('assets/sunglasses.png')
     cig = Image.open('assets/cig.png')
@@ -64,17 +66,9 @@ def resize(img, max_width=750):
 
 
 def find_faces(img, grayscale):
-    """
-    Make rectangles for all faces
-    """
-
     # Find faces. Exit if no faces found
     face_detector = dlib.get_frontal_face_detector()
     rects = face_detector(grayscale, 1)
-    if len(rects) == 0:
-        print("No faces found. Goodbye!")
-        exit()
-    print("{} faces found. Processing...".format(len(rects)))
     return rects
 
 
@@ -132,4 +126,13 @@ def resize_text(img, text):
 
 
 if __name__ == "__main__":
-    deal_with_it()
+    # for gif in os.listdir('output/'):
+    #     os.remove(os.path.join('output/', gif))
+
+    for root, dirs, files in os.walk('input/'):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+                name = file_path[6:].split('.')[0]
+                deal_with_it(file_path, name)
+                print("\n")     # new line in between images
