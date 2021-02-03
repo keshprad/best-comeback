@@ -30,7 +30,6 @@ def deal_with_it(img_path, name):
     for face in faces:
         final_img.paste(face['sunglasses'], face['sunglasses_pos'], face['sunglasses'])
 
-
     def make_frame(t):
         out_img = img.convert('RGBA')
 
@@ -85,7 +84,6 @@ def calculate_prop_positions(rects, grayscale, sunglasses):
 
     for rect in rects:
         face = {}
-        sunglasses_width = rect.right() - rect.left()
 
         # Shape predictor 68 finds the landmarks (eyes, nose, mouth...)
         shape = shape_predictor(grayscale, rect)
@@ -103,6 +101,9 @@ def calculate_prop_positions(rects, grayscale, sunglasses):
 
         # Edit props to fit
         # Resizing and downsampling with LANCZOS
+        # sunglasses_width = rect.right() - rect.left()
+        pythagorean = lambda p1, p2: ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+        sunglasses_width = int(1.625 * pythagorean(shape[45], shape[36]))
         curr_sunglasses = sunglasses.resize(
             (sunglasses_width, int(sunglasses_width * sunglasses.height / sunglasses.width)),
             resample=Image.LANCZOS)
@@ -117,6 +118,7 @@ def calculate_prop_positions(rects, grayscale, sunglasses):
         # Line up props with image and add to array
         face['sunglasses'] = curr_sunglasses
         glasses_center = np.array([leftEyeCenter, rightEyeCenter]).mean(axis=0).astype('int')
+        # glasses_center = [shape[27, 0], np.array([leftEyeCenter[1], rightEyeCenter[1]]).mean().astype('int')]
         sunglasses_x = int(glasses_center[0] - curr_sunglasses.width // 2)
         sunglasses_y = int(glasses_center[1] - curr_sunglasses.height // 2)
         face['sunglasses_pos'] = (sunglasses_x, sunglasses_y)
