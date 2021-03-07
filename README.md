@@ -2,7 +2,7 @@
 
 Want to end an argument with a win? This repo creates an automatic "Deal With It" gif.
 
-## Usage
+## Development
 
 - Install all packages in _requirements.txt_
 
@@ -12,6 +12,11 @@ pip3 install -r requirements.txt
 
 - Add all input files into _input/_ directory
   - All images will be taken and gifs will output to _output/_ directory
+
+- Run with python
+```
+python main.py
+```
 
 ## Examples
 
