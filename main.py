@@ -20,15 +20,16 @@ def deal_with_it(img_path, name):
         return
     print("{} faces found. Processing...".format(len(rects)))
 
-    faces = calculate_prop_positions(rects, grayscale, sunglasses)
+    faces = calculate_prop_positions(rects, grayscale, (sunglasses, cig))
     text = resize_text(img, text)
 
     # Create final_img to avoid creating it multiple times in make_frame method
     final_img = img.convert('RGBA')
-    text_pos = (final_img.width // 2 - text.width // 2, final_img.height - text.height)
-    final_img.paste(text, text_pos, text)
     for face in faces:
         final_img.paste(face['sunglasses'], face['sunglasses_pos'], face['sunglasses'])
+        final_img.paste(face['cig'], face['cig_pos'], face['cig'])
+    text_pos = (final_img.width // 2 - text.width // 2, final_img.height - text.height)
+    final_img.paste(text, text_pos, text)
 
     def make_frame(t):
         out_img = img.convert('RGBA')
@@ -38,9 +39,10 @@ def deal_with_it(img_path, name):
 
         if t <= duration - text_duration:  # last secs for text
             for face in faces:
-                curr_x = face['sunglasses_pos'][0]  # x is constant
-                curr_y = int(face['sunglasses_pos'][1] * t / (duration - text_duration))  # y moves from top -> down
-                out_img.paste(face['sunglasses'], (curr_x, curr_y), face['sunglasses'])
+                sg_currPos = face['sunglasses_pos'][0], int(face['sunglasses_pos'][1] * t / (duration - text_duration)) # y moves from top -> down
+                cig_currPos = face['cig_pos'][0], int(face['cig_pos'][1] * t / (duration - text_duration))
+                out_img.paste(face['sunglasses'], sg_currPos, face['sunglasses'])
+                out_img.paste(face['cig'], cig_currPos, face['cig'])
             return np.asarray(out_img)
         else:
             # If I create the image here, I create the same image (text_duration * fps) times
@@ -78,9 +80,10 @@ def find_faces(img, grayscale):
     return rects
 
 
-def calculate_prop_positions(rects, grayscale, sunglasses):
+def calculate_prop_positions(rects, grayscale, props):
     shape_predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
     faces = []
+    sunglasses, cig = props
 
     for rect in rects:
         face = {}
@@ -99,29 +102,36 @@ def calculate_prop_positions(rects, grayscale, sunglasses):
         rightEyeCenter = rightEye.mean(axis=0).astype("int")
         mouthCenter = mouth.mean(axis=0).astype("int")
 
-        # Edit props to fit
+        # Edit size of props
         # Resizing and downsampling with LANCZOS
-        # sunglasses_width = rect.right() - rect.left()
         pythagorean = lambda p1, p2: ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
         sunglasses_width = int(1.625 * pythagorean(shape[45], shape[36]))
         curr_sunglasses = sunglasses.resize(
             (sunglasses_width, int(sunglasses_width * sunglasses.height / sunglasses.width)),
             resample=Image.LANCZOS)
-        # current_cig = cig.resize((cig))
+        cig_width = rect.right() - rect.left()
+        curr_cig = cig.resize((cig_width, int(cig_width * cig.height / cig.width)), resample=Image.LANCZOS)
 
-        # Find angle between eye center points
-        angle = np.rad2deg(np.arctan2(leftEyeCenter[1] - rightEyeCenter[1], leftEyeCenter[0] - rightEyeCenter[0]))
-        # Rotate to angle of eyes
-        curr_sunglasses = curr_sunglasses.rotate(angle, expand=True)
-        curr_sunglasses = curr_sunglasses.transpose(Image.FLIP_TOP_BOTTOM)
-
-        # Line up props with image and add to array
-        face['sunglasses'] = curr_sunglasses
+        # Find angles and position of props
+        # Sunglasses angle and position
+        sunglasses_angle = np.rad2deg(np.arctan2(leftEyeCenter[1] - rightEyeCenter[1], leftEyeCenter[0] - rightEyeCenter[0]))
+        curr_sunglasses = curr_sunglasses.rotate(sunglasses_angle, expand=True).transpose(Image.FLIP_TOP_BOTTOM)
         glasses_center = np.array([leftEyeCenter, rightEyeCenter]).mean(axis=0).astype('int')
-        # glasses_center = [shape[27, 0], np.array([leftEyeCenter[1], rightEyeCenter[1]]).mean().astype('int')]
-        sunglasses_x = int(glasses_center[0] - curr_sunglasses.width // 2)
-        sunglasses_y = int(glasses_center[1] - curr_sunglasses.height // 2)
-        face['sunglasses_pos'] = (sunglasses_x, sunglasses_y)
+        sunglasses_x, sunglasses_y = int(glasses_center[0] - curr_sunglasses.width // 2), int(glasses_center[1] - curr_sunglasses.height // 2)
+        # Cig angle and position
+        cig_angle = np.rad2deg(np.arctan2(shape[54][1] - shape[48][1], shape[54][0] - shape[48][0]))
+        # if mouthCenter[0] < (rect.left() + rect.right())/2:
+        if pythagorean(mouthCenter, shape[3]) < pythagorean(mouthCenter, shape[13]):
+            curr_cig = curr_cig.rotate(cig_angle, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            # curr_cig = ImageOps.expand(curr_cig, border=1, fill='black')
+            cig_x, cig_y = int(mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
+        else:
+            curr_cig = curr_cig.rotate(-1*cig_angle, expand=True)
+        cig_x, cig_y = int(mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
+
+        # Add props to array
+        face['sunglasses'], face['cig'] = curr_sunglasses, curr_cig
+        face['sunglasses_pos'], face['cig_pos'] = (sunglasses_x, sunglasses_y), (cig_x, cig_y)
         faces.append(face)
     return faces
 
