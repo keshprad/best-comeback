@@ -1,6 +1,6 @@
 # best-comeback
 
-Want to end an argument with a win? This repo creates an automatic "Deal With It" gif.
+Want to end an argument with a win? This repo uses facial landmarks to automatically generate a "Deal With It" gif.
 
 ## Development
 
@@ -11,9 +11,11 @@ pip3 install -r requirements.txt
 ```
 
 - Add all input files into _input/_ directory
+
   - All images will be taken and gifs will output to _output/_ directory
 
 - Run with python
+
 ```
 python main.py
 ```
