@@ -8,8 +8,7 @@ import pathlib
 import os
 
 
-def deal_with_it(img_path, name):
-    print(img_path[6:])
+def deal_with_it(img_path, path):
     img, sunglasses, cig, text = open_assets(img_path)
     resize(img)
 
@@ -18,9 +17,10 @@ def deal_with_it(img_path, name):
 
     rects = find_faces(img, grayscale)
     if len(rects) == 0:
-        print("No faces found. Goodbye!")
+        typer.secho('No faces found. Goodbye!', fg=typer.colors.RED)
         return
-    print("{} faces found. Processing...".format(len(rects)))
+    typer.secho(f'{len(rects)} faces found. Processing...',
+                fg=typer.colors.GREEN)
 
     faces = calculate_prop_positions(rects, grayscale, (sunglasses, cig))
     text = resize_text(img, text)
@@ -58,7 +58,7 @@ def deal_with_it(img_path, name):
 
     duration, text_duration = 4, 2
     animation = mpy.VideoClip(make_frame, duration=duration)
-    animation.write_gif("output/{}.gif".format(name), fps=16)
+    animation.write_gif(f"{path}.gif", fps=16)
 
 
 def open_assets(img_path):
@@ -114,11 +114,13 @@ def calculate_prop_positions(rects, grayscale, props):
         # Resizing and downsampling with LANCZOS
         def pythagorean(p1, p2): return (
             (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+
         sunglasses_width = int(1.625 * pythagorean(shape[45], shape[36]))
         curr_sunglasses = sunglasses.resize(
             (sunglasses_width, int(sunglasses_width *
              sunglasses.height / sunglasses.width)),
             resample=Image.LANCZOS)
+
         cig_width = rect.right() - rect.left()
         curr_cig = cig.resize(
             (cig_width, int(cig_width * cig.height / cig.width)), resample=Image.LANCZOS)
@@ -166,7 +168,9 @@ def resize_text(img, text):
 
 def main(img_path: pathlib.Path = typer.Argument(..., help="The path to your image file")):
     if img_path.is_file() and is_image(img_path):
-        typer.secho(img_path, fg=typer.colors.GREEN)
+        typer.secho(str(img_path))
+        without_ext = os.path.splitext(img_path)[0]
+        deal_with_it(img_path, without_ext)
     else:
         typer.secho("Path must be a valid image.", fg=typer.colors.RED)
 
