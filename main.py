@@ -1,9 +1,11 @@
-import os
 import dlib
 from PIL import Image
 from imutils import face_utils
 import numpy as np
 import moviepy.editor as mpy
+import typer
+import pathlib
+import os
 
 
 def deal_with_it(img_path, name):
@@ -26,9 +28,11 @@ def deal_with_it(img_path, name):
     # Create final_img to avoid creating it multiple times in make_frame method
     final_img = img.convert('RGBA')
     for face in faces:
-        final_img.paste(face['sunglasses'], face['sunglasses_pos'], face['sunglasses'])
+        final_img.paste(face['sunglasses'],
+                        face['sunglasses_pos'], face['sunglasses'])
         final_img.paste(face['cig'], face['cig_pos'], face['cig'])
-    text_pos = (final_img.width // 2 - text.width // 2, final_img.height - text.height)
+    text_pos = (final_img.width // 2 - text.width //
+                2, final_img.height - text.height)
     final_img.paste(text, text_pos, text)
 
     def make_frame(t):
@@ -39,9 +43,12 @@ def deal_with_it(img_path, name):
 
         if t <= duration - text_duration:  # last secs for text
             for face in faces:
-                sg_currPos = face['sunglasses_pos'][0], int(face['sunglasses_pos'][1] * t / (duration - text_duration)) # y moves from top -> down
-                cig_currPos = face['cig_pos'][0], int(face['cig_pos'][1] * t / (duration - text_duration))
-                out_img.paste(face['sunglasses'], sg_currPos, face['sunglasses'])
+                sg_currPos = face['sunglasses_pos'][0], int(
+                    face['sunglasses_pos'][1] * t / (duration - text_duration))  # y moves from top -> down
+                cig_currPos = face['cig_pos'][0], int(
+                    face['cig_pos'][1] * t / (duration - text_duration))
+                out_img.paste(face['sunglasses'],
+                              sg_currPos, face['sunglasses'])
                 out_img.paste(face['cig'], cig_currPos, face['cig'])
             return np.asarray(out_img)
         else:
@@ -81,7 +88,8 @@ def find_faces(img, grayscale):
 
 
 def calculate_prop_positions(rects, grayscale, props):
-    shape_predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+    shape_predictor = dlib.shape_predictor(
+        'shape_predictor_68_face_landmarks.dat')
     faces = []
     sunglasses, cig = props
 
@@ -104,34 +112,45 @@ def calculate_prop_positions(rects, grayscale, props):
 
         # Edit size of props
         # Resizing and downsampling with LANCZOS
-        pythagorean = lambda p1, p2: ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+        def pythagorean(p1, p2): return (
+            (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
         sunglasses_width = int(1.625 * pythagorean(shape[45], shape[36]))
         curr_sunglasses = sunglasses.resize(
-            (sunglasses_width, int(sunglasses_width * sunglasses.height / sunglasses.width)),
+            (sunglasses_width, int(sunglasses_width *
+             sunglasses.height / sunglasses.width)),
             resample=Image.LANCZOS)
         cig_width = rect.right() - rect.left()
-        curr_cig = cig.resize((cig_width, int(cig_width * cig.height / cig.width)), resample=Image.LANCZOS)
+        curr_cig = cig.resize(
+            (cig_width, int(cig_width * cig.height / cig.width)), resample=Image.LANCZOS)
 
         # Find angles and position of props
         # Sunglasses angle and position
-        sunglasses_angle = np.rad2deg(np.arctan2(leftEyeCenter[1] - rightEyeCenter[1], leftEyeCenter[0] - rightEyeCenter[0]))
-        curr_sunglasses = curr_sunglasses.rotate(sunglasses_angle, expand=True).transpose(Image.FLIP_TOP_BOTTOM)
-        glasses_center = np.array([leftEyeCenter, rightEyeCenter]).mean(axis=0).astype('int')
-        sunglasses_x, sunglasses_y = int(glasses_center[0] - curr_sunglasses.width // 2), int(glasses_center[1] - curr_sunglasses.height // 2)
+        sunglasses_angle = np.rad2deg(np.arctan2(
+            leftEyeCenter[1] - rightEyeCenter[1], leftEyeCenter[0] - rightEyeCenter[0]))
+        curr_sunglasses = curr_sunglasses.rotate(
+            sunglasses_angle, expand=True).transpose(Image.FLIP_TOP_BOTTOM)
+        glasses_center = np.array(
+            [leftEyeCenter, rightEyeCenter]).mean(axis=0).astype('int')
+        sunglasses_x, sunglasses_y = int(
+            glasses_center[0] - curr_sunglasses.width // 2), int(glasses_center[1] - curr_sunglasses.height // 2)
         # Cig angle and position
-        cig_angle = np.rad2deg(np.arctan2(shape[54][1] - shape[48][1], shape[54][0] - shape[48][0]))
-        # if mouthCenter[0] < (rect.left() + rect.right())/2:
+        cig_angle = np.rad2deg(np.arctan2(
+            shape[54][1] - shape[48][1], shape[54][0] - shape[48][0]))
+
         if pythagorean(mouthCenter, shape[3]) < pythagorean(mouthCenter, shape[13]):
-            curr_cig = curr_cig.rotate(cig_angle, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
-            # curr_cig = ImageOps.expand(curr_cig, border=1, fill='black')
-            cig_x, cig_y = int(mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
+            curr_cig = curr_cig.rotate(
+                cig_angle, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+            cig_x, cig_y = int(
+                mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
         else:
             curr_cig = curr_cig.rotate(-1*cig_angle, expand=True)
-        cig_x, cig_y = int(mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
+        cig_x, cig_y = int(
+            mouthCenter[0] - curr_cig.width // 2), int(mouthCenter[1] - curr_cig.height // 2)
 
         # Add props to array
         face['sunglasses'], face['cig'] = curr_sunglasses, curr_cig
-        face['sunglasses_pos'], face['cig_pos'] = (sunglasses_x, sunglasses_y), (cig_x, cig_y)
+        face['sunglasses_pos'], face['cig_pos'] = (
+            sunglasses_x, sunglasses_y), (cig_x, cig_y)
         faces.append(face)
     return faces
 
@@ -145,14 +164,20 @@ def resize_text(img, text):
     return text.resize((text_width, text_height), resample=Image.LANCZOS).convert('RGBA')
 
 
-if __name__ == "__main__":
-    # for gif in os.listdir('output/'):
-    #     os.remove(os.path.join('output/', gif))
+def main(img_path: pathlib.Path = typer.Argument(..., help="The path to your image file")):
+    if img_path.is_file() and is_image(img_path):
+        typer.secho(img_path, fg=typer.colors.GREEN)
+    else:
+        typer.secho("Path must be a valid image.", fg=typer.colors.RED)
 
-    for root, dirs, files in os.walk('input/'):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-                name = file_path[6:].split('.')[0]
-                deal_with_it(file_path, name)
-                print("\n")  # new line in between images
+
+def is_image(path):
+    try:
+        Image.open(path)
+    except IOError:
+        return False
+    return True
+
+
+if __name__ == "__main__":
+    typer.run(main)
