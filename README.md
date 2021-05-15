@@ -4,20 +4,16 @@ Want to end an argument with a win? This repo uses facial landmarks to automatic
 
 ## Development
 
-- Install all packages in _requirements.txt_
+- Install all packages in _requirements.txt_. dlib dependency requires Cmake to be installed and may take a while to run its setup process.
 
 ```
 pip3 install -r requirements.txt
 ```
 
-- Add all input files into _input/_ directory
-
-  - All images will be taken and gifs will output to _output/_ directory
-
 - Run with python
 
 ```
-python main.py
+python3 main.py <path/to/image>
 ```
 
 ## Examples
