@@ -166,21 +166,32 @@ def resize_text(img, text):
     return text.resize((text_width, text_height), resample=Image.LANCZOS).convert('RGBA')
 
 
-def main(img_path: pathlib.Path = typer.Argument(..., help="The path to your image file")):
-    if img_path.is_file() and is_image(img_path):
-        typer.secho(str(img_path))
-        without_ext = os.path.splitext(img_path)[0]
-        deal_with_it(img_path, without_ext)
+def main(path: pathlib.Path = typer.Argument(..., help="The path to your image file or directory with multiple images")):
+    if path.is_dir():
+        for child in path.iterdir():
+            if not child.is_dir():
+                main(child)
+    elif path.is_file() and is_image(path):
+        typer.secho(str(path))
+        without_ext = os.path.splitext(path)[0]
+        deal_with_it(path, without_ext)
     else:
-        typer.secho("Path must be a valid image.", fg=typer.colors.RED)
+        typer.secho(str(path))
+        typer.secho("Path is not a valid image. Skipping...",
+                    fg=typer.colors.RED)
 
 
 def is_image(path):
     try:
-        Image.open(path)
+        img = Image.open(path)  # make sure we can open as Image
+        try:
+            img.seek(1)  # make sure not a gif
+        except EOFError:
+            return True
+        else:
+            return False
     except IOError:
         return False
-    return True
 
 
 if __name__ == "__main__":
