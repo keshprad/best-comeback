@@ -4,16 +4,23 @@ Want to end an argument with a win? This repo uses facial landmarks to automatic
 
 ## Development
 
-- Install all packages in _requirements.txt_. dlib dependency requires Cmake to be installed and may take a while to run its setup process.
+**Install all packages in _requirements.txt_.**
+**In order to install dlib, there are some prerequisites. Follow [this guide](https://www.pyimagesearch.com/2017/03/27/how-to-install-dlib/) which shows the setup process for dlib**
 
 ```
 pip3 install -r requirements.txt
 ```
 
-- Run with python
+**Run with python**
 
 ```
 python3 main.py <path/to/image>
+```
+
+**Or use a directory to run on all images in directory**
+
+```
+python3 main.py <path/to/directory>
 ```
 
 ## Examples
