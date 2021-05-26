@@ -4,3 +4,4 @@ imutils==0.5.4
 moviepy==1.0.3
 Pillow==8.2.0
 typer==0.3.2
+opencv-python
