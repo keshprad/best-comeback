@@ -43,8 +43,12 @@ def deal_with_it(img_path, path):
 
         if t <= duration - text_duration:  # last secs for text
             for face in faces:
-                sg_currPos = face['sunglasses_pos'][0], int(
-                    face['sunglasses_pos'][1] * t / (duration - text_duration))  # y moves from top -> down
+                if face['sunglasses_pos'][1] < 0:
+                    sg_currPos = face['sunglasses_pos'][0], -face['sunglasses'].height + int(
+                        (face['sunglasses'].height + face['sunglasses_pos'][1]) * t / (duration - text_duration))  # y moves from top -> down
+                else:
+                    sg_currPos = face['sunglasses_pos'][0], int(
+                        face['sunglasses_pos'][1] * t / (duration - text_duration))  # y moves from top -> down
                 cig_currPos = face['cig_pos'][0], int(
                     face['cig_pos'][1] * t / (duration - text_duration))
                 out_img.paste(face['sunglasses'],
