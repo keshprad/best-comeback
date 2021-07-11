@@ -2,15 +2,49 @@
 
 ## Examples
 
-| Input                 | Output                |
-| --------------------- | --------------------- |
-| ![ex1_in](./1.jpeg)   | ![ex1_out](./1.gif)   |
-| ![ex2_in](./2.jpeg)   | ![ex2_out](./2.gif)   |
-| ![ex3_in](./3.jpeg)   | ![ex3_out](./3.gif)   |
-| ![ex4_in](./4.jpeg)   | ![ex4_out](./4.gif)   |
-| ![ex5_in](./5.jpeg)   | ![ex5_out](./5.gif)   |
-| ![ex6_in](./6.jpeg)   | ![ex6_out](./6.gif)   |
-| ![ex7_in](./7.jpeg)   | ![ex7_out](./7.gif)   |
-| ![ex8_in](./8.jpeg)   | ![ex8_out](./8.gif)   |
-| ![ex9_in](./9.jpeg)   | ![ex9_out](./9.gif)   |
-| ![ex10_in](./10.jpeg) | ![ex10_out](./10.gif) |
+<table style="table-layout: fixed; width: 100%;">
+<tr>
+  <td>Input</td>
+  <td>Output</td>
+</tr>
+<tr>
+  <td width="50%"><img src="1.jpeg" /></td>
+  <td width="50%"><img src="1.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="2.jpeg" /></td>
+  <td width="50%"><img src="2.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="3.jpeg" /></td>
+  <td width="50%"><img src="3.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="4.jpeg" /></td>
+  <td width="50%"><img src="4.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="5.jpeg" /></td>
+  <td width="50%"><img src="5.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="6.jpeg" /></td>
+  <td width="50%"><img src="6.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="7.jpeg" /></td>
+  <td width="50%"><img src="7.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="8.jpeg" /></td>
+  <td width="50%"><img src="8.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="9.jpeg" /></td>
+  <td width="50%"><img src="9.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="10.jpeg" /></td>
+  <td width="50%"><img src="10.gif" /></td>
+</tr>
+</table>

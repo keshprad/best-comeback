@@ -27,8 +27,21 @@ python3 main.py <path/to/directory>
 
 More [examples](./examples/).
 
-| Input                       | Output                      |
-| --------------------------- | --------------------------- |
-| ![Shaq_in](examples/1.jpeg) | ![Shaq_out](examples/1.gif) |
-| ![AG_in](examples/2.jpeg)   | ![AG_out](examples/2.gif)   |
-| ![B99_in](examples/3.jpeg)  | ![B99_out](examples/3.gif)  |
+<table style="table-layout: fixed; width: 100%;">
+<tr>
+  <td>Input</td>
+  <td>Output</td>
+</tr>
+<tr>
+  <td width="50%"><img src="examples/1.jpeg" /></td>
+  <td width="50%"><img src="examples/1.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="examples/2.jpeg" /></td>
+  <td width="50%"><img src="examples/2.gif" /></td>
+</tr>
+<tr>
+  <td width="50%"><img src="examples/3.jpeg" /></td>
+  <td width="50%"><img src="examples/3.gif" /></td>
+</tr>
+</table>
