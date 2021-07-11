@@ -30,5 +30,5 @@ More [examples](./examples/).
 | Input                       | Output                      |
 | --------------------------- | --------------------------- |
 | ![Shaq_in](examples/1.jpeg) | ![Shaq_out](examples/1.gif) |
-| ![AG_in](examples/8.jpg)    | ![AG_out](examples/8.gif)   |
-| ![B99_in](examples/10.jpeg) | ![B99_out](examples/10.gif) |
+| ![AG_in](examples/2.jpeg)   | ![AG_out](examples/2.gif)   |
+| ![B99_in](examples/3.jpeg)  | ![B99_out](examples/3.gif)  |
