@@ -62,7 +62,7 @@ def deal_with_it(img_path, path):
 
     duration, text_duration = 4, 2
     animation = mpy.VideoClip(make_frame, duration=duration)
-    animation.write_gif(f"{path}.gif", fps=16)
+    animation.write_gif(f"{path}.gif", fps=16, opt="OptimizePlus")
 
 
 def open_assets(img_path):
@@ -75,13 +75,16 @@ def open_assets(img_path):
     return img, sunglasses, cig, text
 
 
-def resize(img, max_width=1200):
+def resize(img, max_width=700, max_height=700):
     """
     Resize image if too big
     """
     if img.width > max_width:
         scaled_height = int(max_width * img.height / img.width)
         img.thumbnail((max_width, scaled_height))
+    if img.height > max_height:
+        scaled_width = int(max_height * img.width / img.height)
+        img.thumbnail((scaled_width, max_height))
 
 
 def find_faces(img, grayscale):
