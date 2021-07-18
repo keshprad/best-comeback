@@ -14,13 +14,13 @@ pip3 install -r requirements.txt
 **Run with python**
 
 ```
-python3 main.py <path/to/image>
+python3 best_comeback.py <path/to/image>
 ```
 
 **Or use a directory to run on all images in directory**
 
 ```
-python3 main.py <path/to/directory>
+python3 best_comeback.py <path/to/directory>
 ```
 
 ## Examples
