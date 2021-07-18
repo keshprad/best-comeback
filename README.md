@@ -1,6 +1,6 @@
 # best-comeback
 
-Want to end an argument with a win? This repo uses facial landmarks to automatically generate a "Deal With It" gif.
+Want to end an argument with a win? This repo uses facial landmarks to automatically generate a "Deal With It" gif from an input image.
 
 ## Development
 
